@@ -1,0 +1,13 @@
+FROM alpine:3.13
+
+# Install node.js, and supplementary programs
+RUN apk add --no-cache nodejs npm
+
+COPY *.js ./
+COPY package.json ./
+RUN npm install
+ 
+EXPOSE 80
+
+# By default, simply start the app
+CMD node ./index.js

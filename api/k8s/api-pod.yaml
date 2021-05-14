@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: healthylinkx-api-pod
+spec:
+ containers:
+ - name: healthylinkx-api
+   image: 867679111813.dkr.ecr.us-east-1.amazonaws.com/healthylinkx-api
+   ports:
+   - containerPort: 80
+ replicas: 1
+ restartPolicy: OnFailure

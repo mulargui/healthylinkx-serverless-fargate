@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthylinkx-api-deployment
+  labels:
+    app: healthylinkx-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: healthylinkx-api
+  template:
+    metadata:
+      labels:
+        app: healthylinkx-api
+    spec:        
+      containers:
+      - name: healthylinkx-api
+        image: 867679111813.dkr.ecr.us-east-1.amazonaws.com/healthylinkx-api
+        ports:
+        - containerPort: 80
+     
