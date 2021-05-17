@@ -5,6 +5,10 @@ const {
     GetAuthorizationTokenCommand,
 	CreateRepositoryCommand
 } = require("@aws-sdk/client-ecr");
+const {
+	RDSClient,
+	DescribeDBInstancesCommand
+} = require("@aws-sdk/client-rds");
 
 const fs = require('fs');
 const exec = require('await-exec');
@@ -21,8 +25,11 @@ const config = {
 async function APIImage() {
 
 	try {
-		// address of the datastore, local for now
-		const endpoint = '127.0.0.1';
+		//URL of the datastore
+		const rdsclient = new RDSClient(config);
+		var data = await rdsclient.send(new DescribeDBInstancesCommand({DBInstanceIdentifier: 'healthylinkx-db'}));
+		const endpoint = data.DBInstances[0].Endpoint.Address;
+		console.log("DB endpoint: " + endpoint);
 
 		// create contants.js with env values
 		fs.copyFileSync(constants.ROOT+'/api/src/constants.template.js', constants.ROOT+'/api/src/constants.js');
@@ -42,7 +49,7 @@ async function APIImage() {
 		const ecrclient = new ECRClient(config);
 		
 		//get an ecr token and login in docker
-		const data = await ecrclient.send(new GetAuthorizationTokenCommand({registryIds:[constants.AWS_ACCOUNT_ID]}));
+		data = await ecrclient.send(new GetAuthorizationTokenCommand({registryIds:[constants.AWS_ACCOUNT_ID]}));
 		token = Buffer.from(data.authorizationData[0].authorizationToken, 'base64').toString('ascii').slice(4);
 		await exec(`echo ${token} | sudo docker login -u AWS --password-stdin ${constants.AWS_ACCOUNT_ID}.dkr.ecr.${constants.AWS_REGION}.amazonaws.com`);
 		console.log("Success. login into docker.");

@@ -2,12 +2,14 @@ const constants = require('./envparams.ts');
 const {
 	RDSClient,
 	CreateDBInstanceCommand,
-	DescribeDBInstancesCommand
+	DescribeDBInstancesCommand,
+	CreateDBSubnetGroupCommand
 } = require("@aws-sdk/client-rds");
 const {
 	EC2Client,
 	CreateSecurityGroupCommand,
-	AuthorizeSecurityGroupIngressCommand
+	AuthorizeSecurityGroupIngressCommand,
+	CreateSubnetCommand
 } = require("@aws-sdk/client-ec2");
 const unzip = require('unzip');
 const fs = require('fs');
@@ -29,15 +31,32 @@ function sleep(secs) {
 async function DSCreate() {
 
 	try {
-		//In order to have public access to the DB
-		//we need to create a security group (aka firewall)with an inbound rule 
-		//protocol:TCP, Port:3306, Source: Anywhere (0.0.0.0/0)
+
+		// vpcid of k8s fargate instance
+		vpcid = await exec(`aws cloudformation describe-stacks --stack-name eksctl-my-ekscluster-cluster --region ${constants.AWS_REGION} --query "Stacks[0].Outputs[?OutputKey=='VPC'].OutputValue" --output text`);
+		vpcid=vpcid.stdout.trim();
+
 		const ec2client = new EC2Client(config);
+
+		//create two subnets to host the RDS instance
+		var data = await ec2client.send(new CreateSubnetCommand({ AvailabilityZone: constants.AWS_REGION + 'a', CidrBlock: '192.168.255.0/28', VpcId: vpcid }));
+		const subnet1 = data.Subnet.SubnetId;
+		data = await ec2client.send(new CreateSubnetCommand({ AvailabilityZone: constants.AWS_REGION + 'b', CidrBlock: '192.168.255.16/28', VpcId: vpcid }));
+		const subnet2 = data.Subnet.SubnetId;
+
+		// # Fetch the route table information
+		//aws ec2 describe-route-tables --filters Name=vpc-id,Values=${RDS_VPC_ID} | jq '.RouteTables[0].RouteTableId'
+		//"rtb-0e680357de97595b1"
+		//# Associate the subnets with the route table
+		//$ aws ec2 associate-route-table --route-table-id rtb-0e680357de97595b1 --subnet-id subnet-042a4bee8e92287e8
+		//$ aws ec2 associate-route-table --route-table-id rtb-0e680357de97595b1 --subnet-id subnet-0c01a5ba480b930f4
 		
-		var data = await ec2client.send(new CreateSecurityGroupCommand({ Description: 'MySQL Sec Group', GroupName: 'DBSecGroup'}));
+		//In order to have access to the DB we need to create a security group (aka firewall) with an inbound rule 
+		//protocol:TCP, Port:3306, Source: Anywhere (0.0.0.0/0)
+		data = await ec2client.send(new CreateSecurityGroupCommand({ Description: 'MySQL Sec Group', GroupName: 'DBSecGroup', VpcId: vpcid }));
 		const vpcSecurityGroupId = data.GroupId;
 		console.log("Success. " + vpcSecurityGroupId + " created.");
-		
+
 		const paramsIngress = {
 			GroupId: data.GroupId,
 			IpPermissions: [{
@@ -52,7 +71,10 @@ async function DSCreate() {
 
 		// Create an RDS client service object
 		const rdsclient = new RDSClient(config);
-	
+		
+		//Create a DBSubnet group to host the RDS instance
+		await rdsclient.send(new CreateDBSubnetGroupCommand({DBSubnetGroupName: 'HealthylinkxDBSubnetGroup', DBSubnetGroupDescription: 'HealthylinkxDBSubnetGroup', SubnetIds: [subnet1, subnet2]}));
+
 		// Create the RDS instance
 		var rdsparams = {
 			AllocatedStorage: 20, 
@@ -63,8 +85,10 @@ async function DSCreate() {
 			Engine: 'mysql',
 			MasterUsername: constants.DBUSER,
 			MasterUserPassword: constants.DBPWD,
-			PubliclyAccessible: true,
-			VpcSecurityGroupIds: [vpcSecurityGroupId]
+			PubliclyAccessible: false,
+			AvailabilityZone: constants.AWS_REGION + 'a',
+			VpcSecurityGroupIds: [vpcSecurityGroupId],
+			DBSubnetGroupName: 'HealthylinkxDBSubnetGroup'
 		};
 		await rdsclient.send(new CreateDBInstanceCommand(rdsparams));
 		console.log("Success. healthylinkx-db requested.");
@@ -90,7 +114,7 @@ async function DSCreate() {
 
 		//load the data (and schema) into the database
 		// I really don't like this solution but all others I tried didn't work well => compromising!
-		await exec(`mysql -u${constants.DBUSER} -p${constants.DBPWD} -h${endpoint} healthylinkx < ${constants.ROOT + '/datastore/src/healthylinkxdump.sql'}`); 
+		//await exec(`mysql -u${constants.DBUSER} -p${constants.DBPWD} -h${endpoint} healthylinkx < ${constants.ROOT + '/datastore/src/healthylinkxdump.sql'}`); 
 		console.log("Success. healthylinkx-db populated with data.");
 				
 		//cleanup. delete the unzipped file

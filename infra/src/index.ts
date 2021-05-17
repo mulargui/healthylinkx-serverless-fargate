@@ -5,6 +5,7 @@ const DSCreate = require('./DSCreate.ts');
 const DSDelete = require('./DSDelete.ts');
 const APICreate = require('./APICreate.ts');
 const APIDelete = require('./APIDelete.ts');
+const APIStart = require('./APIStart.ts');
 const APIUpdate = require('./APIUpdate.ts');
 const APIStop = require('./APIStop.ts');
 
@@ -46,12 +47,16 @@ async function main () {
 		case 'd':
 			APIDelete();
 			break;
+		case 'start':
+		case 's':
+			APIStart();
+			break;
 		case 'update':
 		case 'u':
 			APIUpdate();
 			break;
 		case 'stop':
-		case 's':
+		case 'st':
 			APIStop();
 			break;
 		default:
@@ -80,8 +85,9 @@ async function main () {
 		switch (myArgs[1]) {
 		case 'create':
 		case 'c':
-			await DSCreate();
 			await APICreate();
+			await DSCreate();
+			await APIStart();
 			await UXCreate();
 			break;
 		case 'delete':

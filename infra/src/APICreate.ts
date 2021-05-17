@@ -1,6 +1,5 @@
 const constants = require('./envparams.ts');
 const APIStart = require('./APIStart.ts');
-const APIImage = require('./APIImage.ts');
 
 const {
     ECRClient,
@@ -24,15 +23,7 @@ const config = {
 // ====== create api container =====
 async function APICreate() {
 
-	try {
-		// create a repository
-		const ecrclient = new ECRClient(config);
-/*		await ecrclient.send(new CreateRepositoryCommand({repositoryName: 'healthylinkx-api'}));
-		console.log("Success. healthylinkx-api repo created.");
-	
-		//create a new image
-		await APIImage();
-			
+	try {		
 		// create the fargate cluster
 		console.log("Starting to create the fargate cluster, it can easily take 20 mins.");
 		await exec(`eksctl create cluster --name my-ekscluster --region ${constants.AWS_REGION} --zones=us-east-1a,us-east-1b,us-east-1c,us-east-1d,us-east-1f --fargate`);
@@ -45,9 +36,10 @@ async function APICreate() {
 		await exec(`aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy --policy-document file://${constants.ROOT}/infra/src/iam_policy.json`);
 		await exec(`eksctl create iamserviceaccount --region ${constants.AWS_REGION} --name aws-load-balancer-controller --namespace kube-system --cluster my-ekscluster --attach-policy-arn arn:aws:iam::${constants.AWS_ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy --override-existing-serviceaccounts --approve`);
 
-		// install the ALB using helm https://aws.github.io/eks-charts/tree/master/stable/aws-load-balancer-controller
+		// install a ALB using helm https://aws.github.io/eks-charts/tree/master/stable/aws-load-balancer-controller
 		// https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/deploy/installation/
-		// we need to vpcid to install correctly the ALB
+		
+		// we need the vpcid to install correctly the ALB
 		vpcid = await exec(`aws cloudformation describe-stacks --stack-name eksctl-my-ekscluster-cluster --region ${constants.AWS_REGION} --query "Stacks[0].Outputs[?OutputKey=='VPC'].OutputValue" --output text`);
 		vpcid=vpcid.stdout.trim();
 		
@@ -55,10 +47,12 @@ async function APICreate() {
 		await exec(`kubectl apply -k "github.com/aws/eks-charts/stable/aws-load-balancer-controller//crds?ref=master"`);
 		await exec(`helm upgrade -i aws-load-balancer-controller eks/aws-load-balancer-controller --set region=${constants.AWS_REGION} --set clusterName=my-ekscluster --set vpcId=${vpcid} -n kube-system --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller`);
 		console.log("Success. Created the ALB.");
-*/
-		//start the api
-		await APIStart();
 
+		// create a container image repository
+		const ecrclient = new ECRClient(config);
+		await ecrclient.send(new CreateRepositoryCommand({repositoryName: 'healthylinkx-api'}));
+		console.log("Success. healthylinkx-api repo created.");
+		
 	} catch (err) {
 		console.log("Error. ", err);
 	}

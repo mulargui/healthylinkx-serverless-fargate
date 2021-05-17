@@ -17,9 +17,6 @@ async function APIUpdate() {
 		//stop the api in k8s
 		await APIStop();
 		
-		//create a new image
-		await APIImage();
-				
 		//restart the api
 		await APIStart();
 

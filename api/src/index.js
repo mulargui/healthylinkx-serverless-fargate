@@ -8,6 +8,7 @@ var providers = require("./providers");
 var shortlist = require("./shortlist"); 
 var transaction = require("./transaction"); 
 var test = require("./test"); 
+var testsql = require("./testsql"); 
 
 var handle = {}
 handle["/taxonomy"] = taxonomy.taxonomy;
@@ -15,6 +16,7 @@ handle["/providers"] = providers.providers;
 handle["/shortlist"] = shortlist.shortlist;
 handle["/transaction"] = transaction.transaction;
 handle["/test"] = test.test;
+handle["/testsql"] = testsql.testsql;
 
 http.createServer(function (request, response) {
 	console.log(request.url);	
