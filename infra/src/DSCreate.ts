@@ -41,10 +41,14 @@ async function DSCreate() {
 		//create two subnets to host the RDS instance
 		var data = await ec2client.send(new CreateSubnetCommand({ AvailabilityZone: constants.AWS_REGION + 'a', CidrBlock: '192.168.255.0/28', VpcId: vpcid }));
 		const subnet1 = data.Subnet.SubnetId;
+		console.log("Success. " + subnet1 + " created.");
+		
 		data = await ec2client.send(new CreateSubnetCommand({ AvailabilityZone: constants.AWS_REGION + 'b', CidrBlock: '192.168.255.16/28', VpcId: vpcid }));
 		const subnet2 = data.Subnet.SubnetId;
+		console.log("Success. " + subnet2 + " created.");
 
-		// # Fetch the route table information
+		// not needed as is the same vpc for all the subnets
+		//# Fetch the route table information
 		//aws ec2 describe-route-tables --filters Name=vpc-id,Values=${RDS_VPC_ID} | jq '.RouteTables[0].RouteTableId'
 		//"rtb-0e680357de97595b1"
 		//# Associate the subnets with the route table

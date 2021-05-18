@@ -93,8 +93,9 @@ async function main () {
 		case 'delete':
 		case 'd':
 			await UXDelete();
-			await APIDelete();
+			await APIStop();
 			await DSDelete();
+			await APIDelete();
 			break;
 		case 'update':
 		case 'u':

@@ -14,6 +14,7 @@ async function APIStop() {
 
 	try {
 		//stop the api in k8s
+		console.log("Stopping the api service...");
 		await exec(`kubectl delete ingress healthylinkx-api-ingress`);
 		await exec(`kubectl delete services healthylinkx-api-service`);
 		await exec(`kubectl delete deployments healthylinkx-api-deployment`);

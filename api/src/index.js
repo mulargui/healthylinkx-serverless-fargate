@@ -7,6 +7,8 @@ var taxonomy = require("./taxonomy");
 var providers = require("./providers"); 
 var shortlist = require("./shortlist"); 
 var transaction = require("./transaction"); 
+
+//endpoints for several test cases
 var test = require("./test"); 
 var testsql = require("./testsql"); 
 

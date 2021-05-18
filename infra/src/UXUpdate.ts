@@ -5,13 +5,11 @@ const {
 	CreateBucketCommand,
 	PutBucketWebsiteCommand
 } = require("@aws-sdk/client-s3");
-const {
-    APIGatewayClient,
-    GetRestApisCommand
-} = require("@aws-sdk/client-api-gateway");
+
 const fs = require('fs');
 const path = require('path');
 const replace = require('replace-in-file');
+const exec = require('await-exec');
 
 // Set the AWS region and secrets
 const config = {
@@ -44,17 +42,16 @@ async function UXUpdate() {
 	try {
 		//we need to set the url of the api in the constants.js file
 		//URL of the api
-		const apigwclient = new APIGatewayClient(config);
-		var data = await apigwclient.send(new GetRestApisCommand({}));
-		const endpointid = data.items[0].id;
+		var data = 	await exec(`kubectl get ingress healthylinkx-api-ingress -o json`);
+		var endpointid=JSON.parse(data.stdout).status.loadBalancer.ingress[0].hostname.trim();
 		console.log("API endpoint: " + endpointid);
 
 		// create contants.js with env values
 		fs.copyFileSync(constants.ROOT+'/ux/src/js/constants.template.js', constants.ROOT+'/ux/src/js/constants.js');
 		const options = {
 			files: constants.ROOT+'/ux/src/js/constants.js',
-			from: ['APIID', 'REGION'],
-			to: [endpointid, constants.AWS_REGION]
+			from: ['APIID'],
+			to: [endpointid]
 		};
 		await replace(options);
 		console.log("Success. Constants updated.");

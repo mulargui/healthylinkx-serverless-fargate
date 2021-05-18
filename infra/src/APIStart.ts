@@ -18,6 +18,7 @@ async function APIStart() {
 		await APIImage();
 				
 		//start the api
+		console.log("Starting the api service...");
 		result = await exec(`kubectl create -f ${constants.ROOT}/api/k8s/api-deployment.yaml`);
 		result = await exec(`kubectl create -f ${constants.ROOT}/api/k8s/api-service.yaml`);
 		result = await exec(`kubectl apply -f ${constants.ROOT}/api/k8s/api-ingress.yaml`);

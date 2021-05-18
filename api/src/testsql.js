@@ -10,9 +10,11 @@ function ServerReply (response, code, results){
 var db = mysql.createPool({
 	host:constants.host,
 	user:constants.user,
-	password:constants.password
+	password:constants.password,
+	database:constants.database
 });
 
+// check that we have connectivity to the database from the api
 async function testsql(request, response) {
 	try {
 		const connection = await db.getConnection();

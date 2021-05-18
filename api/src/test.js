@@ -7,6 +7,7 @@ function ServerReply (response, code, results){
 	response.end();
 }
 
+// check that we can access the api
 async function test(request, response) {
 	return ServerReply (response, 200, [{"Classification": "one"}, {"Classification": "two"},{"Classification": "three"}]);
 };
