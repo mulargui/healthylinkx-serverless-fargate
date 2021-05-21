@@ -21,17 +21,17 @@ async function transaction(request, response) {
  
  	//check params
  	if(!id)
-		return ServerReply (204, {"error": "no transaction id"});
+		return ServerReply (response, 204, {"error": "no transaction id"});
 
  	//check params
- 	if(!id) return ServerReply (204, {"error": "no transaction id"});
+ 	if(!id) return ServerReply (response, 204, {"error": "no transaction id"});
 	
 	//retrieve the providers
 	var query = "SELECT * FROM transactions WHERE (id = '"+id+"')";
 	try {
 		[rows,fields] = await db.query(query);
 
-		if (rows.length <= 0) return ServerReply (204, {"error": query});
+		if (rows.length <= 0) return ServerReply (response, 204, {"error": query});
 
 		//get the providers
 		var npi1 = rows[0].NPI1;
@@ -46,9 +46,9 @@ async function transaction(request, response) {
 
 		[rows,fields] = await db.query(query);
 		
-		return ServerReply(200, rows);
+		return ServerReply(response, 200, rows);
 	} catch(err) {
-		return ServerReply (500, {"error": query + '#' + err});
+		return ServerReply (response, 500, {"error": query + '#' + err});
 	}
 }; 
 

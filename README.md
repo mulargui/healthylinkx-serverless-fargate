@@ -11,22 +11,24 @@ For the healthylinkx-cli app to work you need to have installed locally
 * kubectl
 * AWS eksctl
 * AWS CLI
-* helm
+* helm  
 All of them are well-known tools. No reference on how to install them here as it changes over time
 
-Directories and files
-healthylinkx-cli - this is the command line interface
-/infra/src - healthylinkx-cli app source code to install, uninstall and update the whole app
-/infra/src/envparams-template.js - All the parameters of the app, like AWS secrets...
+Directories and files  
+healthylinkx-cli - this is the command line interface  
+/infra/src - healthylinkx-cli app source code to install, uninstall and update the whole app  
+/infra/src/envparams-template.js - All the parameters of the app, like AWS secrets...  
 Fill in your data and save it as envparams.js
 
-The API is implemented as a container written in nodejs and hosted in fargate
+The API is implemented as a container written in nodejs and hosted in fargate  
 /api/src - source code of the api (node js) - one file per endpoint  
-/api/docker - dockerfile
+/api/docker - dockerfile  
 /api/k8s - kubernetes yaml files
 
-The datastore is a RDS MySql instance  
-/datastore/src - dump of the healthylinkx database (schema and data)
+The datastore is a RDS MySql instance. The data and schema is loaded using a pod in the k8s cluster  
+/datastore/data - dump of the healthylinkx database (schema and data) and shellscript to upload it  
+/datastore/docker - dockerfile  
+/datastore/k8s - kubernetes yaml file
 
 The ux is a single page web app (html+jquery+bootstrap+javascript) hosted in a S3 bucket  
 /ux/src - the source code of the ux app 

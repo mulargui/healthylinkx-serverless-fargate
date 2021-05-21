@@ -29,7 +29,7 @@ async function providers(request, response) {
  	
  	//check params
  	if(!zipcode && !lastname1 && !specialty)
-		return ServerReply (204, {"error": 'not enought params!'});
+		return ServerReply (response, 204, {"error": 'not enought params!'});
 	
  	var query = "SELECT NPI,Provider_Full_Name,Provider_Full_Street,Provider_Full_City FROM npidata2 WHERE (";
  	if(lastname1)
@@ -62,9 +62,9 @@ async function providers(request, response) {
  		
 		try {
 			const [rows,fields] = await db.query(query);
-			return ServerReply (200, rows);
+			return ServerReply (response, 200, rows);
 		} catch(err) {
-			return ServerReply (500, {"error": query + '#' + err});
+			return ServerReply (response, 500, {"error": query + '#' + err});
 		}
 	}
 	
@@ -79,11 +79,11 @@ async function providers(request, response) {
 		const response = await axios.get(queryapi);
 		zipcodes=response.data;
 	} catch (err) {
-		return ServerReply (500, {"error": queryapi + ':' + err});
+		return ServerReply (response, 500, {"error": queryapi + ':' + err});
 	}
 
 	//no data
-  	if (!zipcodes) return ServerReply (204, {"error": "no zipcodes!"});
+  	if (!zipcodes) return ServerReply (response, 204, {"error": "no zipcodes!"});
 
 	var length=zipcodes.zip_codes.length;
 
@@ -99,9 +99,9 @@ async function providers(request, response) {
 
 	try {
 		const [rows,fields] = await db.query(query);
-		return ServerReply (200, rows);
+		return ServerReply (response, 200, rows);
 	} catch(err) {
-		return ServerReply (500, {"error": query + '#' + err});
+		return ServerReply (response, 500, {"error": query + '#' + err});
 	}
 }; 
 

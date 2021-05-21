@@ -51,6 +51,7 @@ async function APICreate() {
 		// create a container image repository
 		const ecrclient = new ECRClient(config);
 		await ecrclient.send(new CreateRepositoryCommand({repositoryName: 'healthylinkx-api'}));
+		await ecrclient.send(new CreateRepositoryCommand({repositoryName: 'loaddata'}));
 		console.log("Success. healthylinkx-api repo created.");
 		
 	} catch (err) {

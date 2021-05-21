@@ -2,6 +2,7 @@ const constants = require('./envparams.ts');
 const {
 	RDSClient,
 	DeleteDBInstanceCommand,
+	DeleteDBSubnetGroupCommand,
 	DescribeDBInstancesCommand
 } = require("@aws-sdk/client-rds");
 const {
@@ -51,7 +52,10 @@ async function DSDelete() {
 			}
 		}
 		console.log("Success. healthylinkx-db deleted.");
-	
+
+		//Delete the DBSubnet group hosting the RDS instance
+		await rdsclient.send(new DeleteDBSubnetGroupCommand({DBSubnetGroupName: 'HealthylinkxDBSubnetGroup'}));
+
 		const ec2client = new EC2Client(config);
 		
 		//delete the security group

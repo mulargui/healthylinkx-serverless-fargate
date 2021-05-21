@@ -56,6 +56,7 @@ async function main () {
 		case 'update':
 		case 'u':
 			await APIUpdate();
+			await UXUpdate();
 			break;
 		case 'stop':
 		case 'st':
@@ -110,6 +111,7 @@ async function main () {
 		}
 		break;
 	case 'test':
+			await DSLoadData();
 		break;
 	default:
 		usage();

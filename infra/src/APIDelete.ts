@@ -27,10 +27,12 @@ async function APIDelete() {
 		await exec(`eksctl delete cluster --name my-ekscluster --region ${constants.AWS_REGION} --wait`);
 		console.log("Success. eks fargate cluster deleted.");
 
-		// delete the ECR repository
+		// delete the ECR repositories
 		const ecrclient = new ECRClient(config);
 		await ecrclient.send(new DeleteRepositoryCommand({repositoryName: 'healthylinkx-api', force: true}));
 		console.log("Success. healthylinkx-api repo deleted.");
+		await ecrclient.send(new DeleteRepositoryCommand({repositoryName: 'loaddata', force: true}));
+		console.log("Success. loaddata repo deleted.");
 		
 		//delete ALBIngressControllerIAMPolicy policy
 		await exec(`aws iam delete-policy --policy-arn arn:aws:iam::${constants.AWS_ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy`);

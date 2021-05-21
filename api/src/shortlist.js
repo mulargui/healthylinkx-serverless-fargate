@@ -24,7 +24,7 @@ async function shortlist(request, response) {
 
  	//check params
  	if(!npi1)
-		return ServerReply (204, {"error": "no NPI requested"});
+		return ServerReply (response, 204, {"error": "no NPI requested"});
 
 	//save the selection
 	var query = "INSERT INTO transactions VALUES (DEFAULT,DEFAULT,'"+ npi1 +"','"+ npi2 +"','"+npi3 +"')";
@@ -42,9 +42,9 @@ async function shortlist(request, response) {
 		
 		[rows,fields] = await db.query(query);
 		
-		return ServerReply (200, {"providers": rows, "Transaction": transactionid});
+		return ServerReply (response, 200, {"providers": rows, "Transaction": transactionid});
 	} catch(err) {
-		return ServerReply (500, {"error": query + '#' + err});
+		return ServerReply (response, 500, {"error": query + '#' + err});
 	}
 };
 

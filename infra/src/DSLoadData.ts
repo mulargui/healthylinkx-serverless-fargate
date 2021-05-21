@@ -56,7 +56,7 @@ async function DSLoadData() {
 		console.log("Success. Loaddata image created.");
 		
 		//cleanup. delete the unzipped file
-		await fs.unlinkSync(constants.ROOT + '/datastore/src/healthylinkxdump.sql');
+		await fs.unlinkSync(constants.ROOT + '/datastore/data/healthylinkxdump.sql');
 
 		//export image to aws-ecr
 		const ecrclient = new ECRClient(config);
@@ -73,9 +73,9 @@ async function DSLoadData() {
 		console.log("Success. Loaddata image pushed to ECR.");
 						
 		//run the pod in k8s
-		console.log("Starting loading data in the datastore...");
+		console.log("Starting a container to load the data in the datastore...");
 		await exec(`kubectl create -f ${constants.ROOT}/datastore/k8s/loaddata-pod.yaml`);
-		console.log("Data load complete...");
+		console.log("Success. To check the status of the pod: kubectl get pods loaddata-pod");
 		
 	} catch (err) {
 		console.log("Error. ", err);
