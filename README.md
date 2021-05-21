@@ -1,5 +1,6 @@
 # healthylinkx-serverless-fargate
-Healthylinkx is a 3 tiers app: ux, api and datastore. Implementation of Healthylinkx using AWS serverless resources (S3, EKS Fargate, RDS MySQL)
+Healthylinkx is a 3 tiers app: ux, api and datastore. It also connects to a third party API service. 
+Implementation of Healthylinkx using AWS serverless resources (S3, EKS Fargate, RDS MySQL)
 
 Based on https://github.com/mulargui/healthylinkx-serverless-node
 This is a reimplementation using AWS EKS Fargate instead of Lambdas and an API Gateway for the healthylinkx api tier
@@ -17,7 +18,7 @@ All of them are well-known tools. No reference on how to install them here as it
 Directories and files  
 healthylinkx-cli - this is the command line interface  
 /infra/src - healthylinkx-cli app source code to install, uninstall and update the whole app  
-/infra/src/envparams-template.js - All the parameters of the app, like AWS secrets...  
+/infra/src/envparams-template.js - All the parameters of the app, like AWS secrets... 
 Fill in your data and save it as envparams.js
 
 The API is implemented as a container written in nodejs and hosted in fargate  
