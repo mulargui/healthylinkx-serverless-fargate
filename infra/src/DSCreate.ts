@@ -1,4 +1,5 @@
 const constants = require('./envparams.ts');
+
 const {
 	RDSClient,
 	CreateDBInstanceCommand,
@@ -11,8 +12,7 @@ const {
 	AuthorizeSecurityGroupIngressCommand,
 	CreateSubnetCommand
 } = require("@aws-sdk/client-ec2");
-const unzip = require('unzip');
-const fs = require('fs');
+
 const exec = require('await-exec');
 
 // Set the AWS region and secrets
@@ -27,7 +27,7 @@ function sleep(secs) {
 	return new Promise(resolve => setTimeout(resolve, secs * 1000));
 }
 
-// ====== create MySQL database and add data =====
+// ====== create MySQL database =====
 async function DSCreate() {
 
 	try {
@@ -97,11 +97,6 @@ async function DSCreate() {
 		await rdsclient.send(new CreateDBInstanceCommand(rdsparams));
 		console.log("Success. healthylinkx-db requested.");
 
-		//unzip the file to dump on the database
-		// we do this here to use the wait time to unzip
-		await fs.createReadStream(constants.ROOT + '/datastore/src/healthylinkxdump.sql.zip')
-			.pipe(unzip.Extract({ path: constants.ROOT + '/datastore/src' }));
-
 		//wait till the instance is created
 		while(true) {
 			data = await rdsclient.send(new DescribeDBInstancesCommand({DBInstanceIdentifier: 'healthylinkx-db'}));
@@ -116,13 +111,6 @@ async function DSCreate() {
 		const endpoint = data.DBInstances[0].Endpoint.Address;
 		console.log("DB endpoint: " + endpoint);
 
-		//load the data (and schema) into the database
-		// I really don't like this solution but all others I tried didn't work well => compromising!
-		//await exec(`mysql -u${constants.DBUSER} -p${constants.DBPWD} -h${endpoint} healthylinkx < ${constants.ROOT + '/datastore/src/healthylinkxdump.sql'}`); 
-		console.log("Success. healthylinkx-db populated with data.");
-				
-		//cleanup. delete the unzipped file
-		await fs.unlinkSync(constants.ROOT + '/datastore/src/healthylinkxdump.sql');
 	} catch (err) {
 		console.log("Error. ", err);
 	}

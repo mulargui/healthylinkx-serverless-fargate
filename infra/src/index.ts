@@ -2,6 +2,7 @@ const UXCreate = require('./UXCreate.ts');
 const UXDelete = require('./UXDelete.ts');
 const UXUpdate = require('./UXUpdate.ts');
 const DSCreate = require('./DSCreate.ts');
+const DSLoadData = require('./DSLoadData.ts');
 const DSDelete = require('./DSDelete.ts');
 const APICreate = require('./APICreate.ts');
 const APIDelete = require('./APIDelete.ts');
@@ -22,11 +23,12 @@ async function main () {
 		switch (myArgs[1]) {
 		case 'create':
 		case 'c':
-			DSCreate();
+			await DSCreate();
+			await DSLoadData();
 			break;
 		case 'delete':
 		case 'd':
-			DSDelete();
+			await DSDelete();
 			break;
 		case 'update':
 		case 'u':
@@ -41,23 +43,23 @@ async function main () {
 		switch (myArgs[1]) {
 		case 'create':
 		case 'c':
-			APICreate();
+			await APICreate();
 			break;
 		case 'delete':
 		case 'd':
-			APIDelete();
+			await APIDelete();
 			break;
 		case 'start':
 		case 's':
-			APIStart();
+			await APIStart();
 			break;
 		case 'update':
 		case 'u':
-			APIUpdate();
+			await APIUpdate();
 			break;
 		case 'stop':
 		case 'st':
-			APIStop();
+			await APIStop();
 			break;
 		default:
 			usage();
@@ -67,15 +69,15 @@ async function main () {
 		switch (myArgs[1]) {
 		case 'create':
 		case 'c':
-			UXCreate();
+			await UXCreate();
 			break;
 		case 'delete':
 		case 'd':
-			UXDelete();
+			await UXDelete();
 			break;
 		case 'update':
 		case 'u':
-			UXUpdate();
+			await UXUpdate();
 			break;
 		default:
 			usage();
@@ -87,6 +89,7 @@ async function main () {
 		case 'c':
 			await APICreate();
 			await DSCreate();
+			await DSLoadData();
 			await APIStart();
 			await UXCreate();
 			break;
@@ -105,6 +108,8 @@ async function main () {
 		default:
 			usage();
 		}
+		break;
+	case 'test':
 		break;
 	default:
 		usage();

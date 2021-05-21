@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+ name: loaddata-pod
+spec:
+ containers:
+ - name: loaddata
+   image: 867679111813.dkr.ecr.us-east-1.amazonaws.com/loaddata
+ replicas: 1
+ restartPolicy: OnFailure

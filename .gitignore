@@ -112,3 +112,4 @@ dist
 **/envparams.sh
 **/envparams.js
 **/envparams.ts
+**/loaddata.sh
